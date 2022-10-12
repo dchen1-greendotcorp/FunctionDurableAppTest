@@ -21,9 +21,9 @@ namespace FunctionDurableAppTest
         public static string MaxNumberOfAttempts = "MaxNumberOfAttempts";
         public static string BackoffCoefficient = "BackoffCoefficient";
 
-        public const string ProcessSave = "Save";
-        public const string ProcessArchive = "Archive";
-        public const string ProcessNotification = "Notification";
+        public const string ProcessSave = "SaveAccount";
+        public const string ProcessArchive = "ArchiveAccount";
+        public const string ProcessNotification = "NotifyAccount";
         public static List<string> AccountProcessList = new List<string>() { ProcessSave, ProcessArchive, ProcessNotification };
     }
 }

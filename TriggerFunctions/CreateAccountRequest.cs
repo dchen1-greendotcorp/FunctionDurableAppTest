@@ -52,6 +52,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
             }
             else
             {
+                log.LogInformation($"submit event {AppConstants.ResubmitAccount_Event} to orchestration with ID = '{account.ProcessInstanceId}'.");
                 var orchEvtObj = new OrchestrationEventObj { EventName = AppConstants.ResubmitAccount_Event, EventData = account };
                 await client.RaiseEventAsync(account.ProcessInstanceId, AppConstants.ResubmitAccount_Event, orchEvtObj);
             }

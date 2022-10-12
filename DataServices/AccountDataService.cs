@@ -1,5 +1,6 @@
 ﻿using FunctionDurableAppTest.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FunctionDurableAppTest.DataServices
 {
@@ -21,6 +22,13 @@ namespace FunctionDurableAppTest.DataServices
         {
             lock (_locker)
             {
+                if(!account.ProcessStatus.Any())
+                {
+                    foreach (var c in AppConstants.AccountProcessList)
+                    {
+                        account.ProcessStatus[c] = false;
+                    }
+                }
                 _accountDict[account.AccountId]=account;
             }
         }

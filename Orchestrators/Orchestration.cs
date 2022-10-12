@@ -30,13 +30,24 @@ namespace FunctionDurableAppTest.Orchestrators
 
         [FunctionName("Orchestration")]
         public async Task RunOrchestrator(
-            [OrchestrationTrigger] IDurableOrchestrationContext context)
+            [OrchestrationTrigger] IDurableOrchestrationContext context, ILogger log)
         {
             var account = context.GetInput<AccountDetails>();
 
             account.ProcessInstanceId = context.InstanceId;
 
-            await context.CallActivityWithRetryAsync<bool>(nameof(CreateAccount), retryOptions, account);
+            try
+            {
+                context.CallActivityWithRetryAsync<bool>(nameof(SaveAccount), retryOptions, account).GetAwaiter().GetResult();
+                context.CallActivityWithRetryAsync<bool>(nameof(ArchiveAccount), retryOptions, account).GetAwaiter().GetResult();
+                context.CallActivityWithRetryAsync<bool>(nameof(NotifyAccount), retryOptions, account).GetAwaiter().GetResult();
+                return;
+            }
+            catch (Exception ex)
+            {
+                log.LogError("Orchestra met error = {ex}", ex);
+            }
+           
 
             Dictionary<string, Task<OrchestrationEventObj>> taskdict = new Dictionary<string, Task<OrchestrationEventObj>>();
 
@@ -88,7 +99,7 @@ namespace FunctionDurableAppTest.Orchestrators
 
         private void RegisterTimer(Dictionary<string, Task<OrchestrationEventObj>> taskdict, IDurableOrchestrationContext context, CancellationToken token)
         {
-            var duration = context.CurrentUtcDateTime.AddHours(72);
+            var duration = context.CurrentUtcDateTime.AddMinutes(10);
             OrchestrationEventObj timerEventObj = new OrchestrationEventObj() { EventName = AppConstants.TaskExpireEvent, EventData = null };
 
             var waitForExpireTask = context.CreateTimer(duration, timerEventObj, token);

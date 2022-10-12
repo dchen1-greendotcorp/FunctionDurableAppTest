@@ -34,6 +34,8 @@ namespace FunctionDurableAppTest
             builder.Services.AddScoped<IOrchestrationEventHandler, TaskExpireHandler>();
             builder.Services.AddScoped<IOrchestrationEventHandler, ResubmitAccountEventHandler>();
 
+            builder.Services.AddSingleton<INotificationService, NotificationService>();
+
             //builder.Services.AddGDApplicationInsights(config);
 
             //builder.Services.AddLogging(loggingBuilder =>

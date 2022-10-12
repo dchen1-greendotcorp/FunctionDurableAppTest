@@ -14,7 +14,7 @@ namespace FunctionDurableAppTest.Models
 
         public string ProcessInstanceId { get; set; }
 
-        public Dictionary<string,bool> ProcessStatus { get; set; }
+        public Dictionary<string,bool> ProcessStatus { get; set; }=new Dictionary<string,bool>();
 
 
         public static AccountDetails CreateAccountDetails(string username)
@@ -24,14 +24,10 @@ namespace FunctionDurableAppTest.Models
             accountDetails.UserName = username;
             accountDetails.AccountId = Guid.NewGuid().ToString();
 
-            Dictionary<string, bool> keyValuePairs = new Dictionary<string, bool>();
-
             foreach(var c in AppConstants.AccountProcessList)
             {
-                keyValuePairs[c] = false;
+                accountDetails.ProcessStatus[c] = false;
             }
-
-            accountDetails.ProcessStatus = keyValuePairs;
 
             return accountDetails;
         }
