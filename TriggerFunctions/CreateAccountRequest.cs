@@ -15,12 +15,6 @@ namespace FunctionDurableAppTest.TriggerFunctions
 {
     public class CreateAccountRequest
     {
-        private readonly IAccountDataService _accountDataService;
-
-        public CreateAccountRequest(IAccountDataService accountDataService)
-        {
-            _accountDataService = accountDataService;
-        }
 
         [FunctionName("CreateAccountRequest")]
         public async Task<HttpResponseMessage> HttpStart(
@@ -48,19 +42,20 @@ namespace FunctionDurableAppTest.TriggerFunctions
             if (string.IsNullOrEmpty(account.ProcessInstanceId))
             {
                 string instanceId = await client.StartNewAsync("Orchestration", accountDetails);
-                log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
+                string info = $"Started orchestration with process ID = '{instanceId}', and accountId = '{accountDetails.AccountId}' .";
+                log.LogInformation(info);
+                return req.CreateCustomResponse(System.Net.HttpStatusCode.OK, info);
             }
             else
             {
-                log.LogInformation($"submit event {AppConstants.ResubmitAccount_Event} to orchestration with ID = '{account.ProcessInstanceId}'.");
+                string info = $"submit event {AppConstants.ResubmitAccount_Event} to orchestration with ID = '{account.ProcessInstanceId}'.";
+                log.LogInformation(info);
                 var orchEvtObj = new OrchestrationEventObj { EventName = AppConstants.ResubmitAccount_Event, EventData = account };
                 await client.RaiseEventAsync(account.ProcessInstanceId, AppConstants.ResubmitAccount_Event, orchEvtObj);
+
+                return req.CreateCustomResponse(System.Net.HttpStatusCode.OK, info);
             }
-
-            var result = _accountDataService.GetAccountDetailsById(account.AccountId);
-            var json = JsonConvert.SerializeObject(result);
-
-            return req.CreateCustomResponse(System.Net.HttpStatusCode.OK, json);
+            
         }
     }
 }

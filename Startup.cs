@@ -4,6 +4,7 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 
 [assembly: FunctionsStartup(typeof(FunctionDurableAppTest.Startup))]
@@ -27,14 +28,8 @@ namespace FunctionDurableAppTest
         {
             var config = builder.GetContext().Configuration;
 
-            builder.Services.Registrations(config);
-
-            builder.Services.AddSingleton<IAccountDataService, AccountDataService>();
-
-            builder.Services.AddScoped<IOrchestrationEventHandler, TaskExpireHandler>();
-            builder.Services.AddScoped<IOrchestrationEventHandler, ResubmitAccountEventHandler>();
-
-            builder.Services.AddSingleton<INotificationService, NotificationService>();
+            builder.Services.RegistrationServices(config);
+            
 
             //builder.Services.AddGDApplicationInsights(config);
 

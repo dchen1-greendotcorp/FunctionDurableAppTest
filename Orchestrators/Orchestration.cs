@@ -20,11 +20,16 @@ namespace FunctionDurableAppTest.Orchestrators
     public class Orchestration
     {
         private readonly RetryOptions retryOptions;
-        private readonly Dictionary<string, IOrchestrationEventHandler> eventHandlerDict;
+        private readonly Dictionary<string, IOrchestrationEventHandler> eventHandlerDict=new Dictionary<string, IOrchestrationEventHandler>();
 
         public Orchestration(RetryOptions retryOptions, IEnumerable<IOrchestrationEventHandler> orchestrationEventHandlers)
         {
             this.retryOptions = retryOptions;
+
+            //foreach (var eventHandler in orchestrationEventHandlers)
+            //{
+            //    eventHandlerDict[eventHandler.EventName]=eventHandler;
+            //}
             this.eventHandlerDict = orchestrationEventHandlers.ToDictionary(c => c.EventName);
         }
 
