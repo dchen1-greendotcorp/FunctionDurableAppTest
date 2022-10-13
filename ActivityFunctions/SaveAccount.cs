@@ -23,6 +23,12 @@ namespace FunctionDurableAppTest.ActivityFunctions
         [FunctionName("SaveAccount")]
         public async Task<bool> SaveAccountActivity([ActivityTrigger] AccountDetails account, ILogger log)
         {
+            var acc = _accountDataService.GetAccountDetailsById(account.AccountId);
+            if (acc != null && acc.ProcessStatus[AppConstants.ProcessSave])
+            {
+                return true;
+            }
+
             account.ProcessStatus[AppConstants.ProcessSave] = true;
 
             _accountDataService.SaveAccountDetails(account);

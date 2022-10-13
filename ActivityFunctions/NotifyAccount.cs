@@ -13,7 +13,7 @@ namespace FunctionDurableAppTest.ActivityFunctions
         private readonly INotificationService _notificationService;
         private readonly IAccountDataService _accountDataService;
 
-        public NotifyAccount(INotificationService notificationService,IAccountDataService accountDataService)
+        public NotifyAccount(INotificationService notificationService, IAccountDataService accountDataService)
         {
             _notificationService = notificationService;
             _accountDataService = accountDataService;
@@ -22,9 +22,16 @@ namespace FunctionDurableAppTest.ActivityFunctions
         [FunctionName("NotifyAccount")]
         public async Task<bool> NotifyAccountActivity([ActivityTrigger] AccountDetails account, ILogger log)
         {
-            var result=await _notificationService.NotifyAccount(account)
+            var acc = _accountDataService.GetAccountDetailsById(account.AccountId);
+            if (acc != null && acc.ProcessStatus[AppConstants.ProcessNotification])
+            {
+                return true;
+            }
+
+            var result = await _notificationService.NotifyAccount(account)
                 .ConfigureAwait(false);
-            if(result)
+
+            if (result)
             {
                 account.ProcessStatus[AppConstants.ProcessNotification] = true;
                 _accountDataService.SaveAccountDetails(account);
