@@ -8,17 +8,16 @@ namespace FunctionDurableAppTest
 {
     public static class AppConstants
     {
-        public const string UserAction_Event = "UserAction";
+        
         public const string CancellAccount_Event = "CancelAccount";
 
         public const string TaskExpireEvent = "TaskExpire";
 
         public const string ResubmitAccount_Event = "ResubmitAccount";
-        public static string[] RegisterdEvents = { UserAction_Event, CancellAccount_Event, ResubmitAccount_Event };
+        public static string[] RegisterdEvents = {  CancellAccount_Event, ResubmitAccount_Event };
 
         public static string FirstRetryInterval = "FirstRetryInterval";
-
-        public static string MaxNumberOfAttempts = "MaxNumberOfAttempts";
+        public static string MaxNumberOfAttempts = "MaxNumofAttempts";
         public static string BackoffCoefficient = "BackoffCoefficient";
 
         public const string ProcessSave = "SaveAccount";

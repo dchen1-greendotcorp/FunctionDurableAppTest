@@ -13,14 +13,11 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
     {
         private readonly RetryOptions retryOptions;
         private readonly IAccountDataService _accountDataService;
-        private readonly ILogger<ResubmitAccountEventHandler> _logger;
 
-        public ResubmitAccountEventHandler(RetryOptions retryOptions, IAccountDataService accountDataService,
-            ILogger<ResubmitAccountEventHandler> logger)
+        public ResubmitAccountEventHandler(RetryOptions retryOptions, IAccountDataService accountDataService)
         {
             this.retryOptions = retryOptions;
             _accountDataService = accountDataService;
-            _logger = logger;
         }
         public string EventName => AppConstants.ResubmitAccount_Event;
 
@@ -34,7 +31,6 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
                 {
                     if (!k.Value)
                     {
-                        _logger.LogInformation("Call {Activity}", k.Key);
                         context.CallActivityWithRetryAsync<bool>(k.Key, retryOptions, account).GetAwaiter().GetResult();
                     }
                 }
@@ -48,7 +44,6 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
             }
             catch (Exception e)
             {
-                _logger.LogError("ResubmitAccountEventHandler met exception: {e}", e);
                 OrchestrationResponse orchestrationResponse = new OrchestrationResponse()
                 {
                     CloseParent = false,

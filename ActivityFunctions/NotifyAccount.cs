@@ -36,7 +36,7 @@ namespace FunctionDurableAppTest.ActivityFunctions
                 account.ProcessStatus[AppConstants.ProcessNotification] = true;
                 _accountDataService.SaveAccountDetails(account);
                 log.LogInformation($"Notify {account.UserName} success!");
-                await Task.Delay(1000);
+                await Task.Delay(100);
                 return true;
             }
             else

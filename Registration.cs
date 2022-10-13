@@ -16,9 +16,12 @@ namespace FunctionDurableAppTest
     {
         public static IServiceCollection RegistrationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<IOrchestrationEventHandler, CancellAccountEventHandler>();
-            services.AddScoped<IOrchestrationEventHandler, TaskExpireHandler>();
-            services.AddScoped<IOrchestrationEventHandler, ResubmitAccountEventHandler>();
+            services.AddSingleton<IAccountDataService, AccountDataService>();
+            services.AddSingleton<INotificationService, NotificationService>();
+
+            services.AddSingleton<IOrchestrationEventHandler, CancellAccountEventHandler>();
+            services.AddSingleton<IOrchestrationEventHandler, TaskExpireHandler>();
+            services.AddSingleton<IOrchestrationEventHandler, ResubmitAccountEventHandler>();
 
             services.AddSingleton<IRetryConfiguration, RetryConfiguration>();
 
@@ -31,9 +34,6 @@ namespace FunctionDurableAppTest
                     maxNumberOfAttempts: retryConfiguration.MaxNumberOfAttempts)
                 { BackoffCoefficient = retryConfiguration.BackoffCoefficient };
             });
-
-            services.AddSingleton<IAccountDataService, AccountDataService>();
-            services.AddSingleton<INotificationService, NotificationService>();
 
             return services;
         }

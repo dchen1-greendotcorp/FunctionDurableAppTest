@@ -25,7 +25,11 @@ namespace FunctionDurableAppTest.Orchestrators
         public Orchestration(RetryOptions retryOptions, IEnumerable<IOrchestrationEventHandler> orchestrationEventHandlers)
         {
             this.retryOptions = retryOptions;
-            this.eventHandlerDict = orchestrationEventHandlers.ToDictionary(c => c.EventName);
+            //eventHandlerDict=orchestrationEventHandlers.ToDictionary(c => c.EventName);
+            //foreach (var item in orchestrationEventHandlers)
+            //{
+            //    eventHandlerDict[item.EventName] = item;
+            //}
         }
 
         [FunctionName("Orchestration")]
