@@ -50,11 +50,11 @@ namespace FunctionDurableAppTest.TriggerFunctions
 
             var result = JsonConvert.SerializeObject(account, Formatting.Indented,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
-            string formate = string.Format("System find account with id: {instanceId}, get result: {result}", accountId, result);
+            string format = string.Format("System find account with id: {accountId}, get result: {result}", accountId, result);
 
-            log.LogInformation(formate);
+            log.LogInformation(format);
 
-            return req.CreateCustomResponse(System.Net.HttpStatusCode.OK, formate);
+            return req.CreateCustomResponse(System.Net.HttpStatusCode.OK, format);
         }
 
     }
