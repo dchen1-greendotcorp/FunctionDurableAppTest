@@ -18,9 +18,27 @@ namespace FunctionDurableAppTest
             var outputs = new List<string>();
 
             // Replace "hello" with the name of your Durable Activity Function.
-            outputs.Add(await context.CallActivityAsync<string>("Function_Hello", "Tokyo"));
-            outputs.Add(await context.CallActivityAsync<string>("Function_Hello", "Seattle"));
-            outputs.Add(await context.CallActivityAsync<string>("Function_Hello", "London"));
+            var data1 = await context.CallActivityAsync<string>("Function_Hello", "Tokyo");
+
+            
+            if(!string.IsNullOrEmpty(data1))
+            {
+                outputs.Add(data1);
+                var data2 = await context.CallActivityAsync<string>("Function_Hello", "Seattle");
+                if(!string.IsNullOrEmpty (data2))
+                {
+                    outputs.Add(data2);
+                    var data3 = await context.CallActivityAsync<string>("Function_Hello", "London");
+                    if(!string.IsNullOrEmpty (data3))
+                    {
+                        outputs.Add(data3);
+                    }
+                }
+            }
+
+            //outputs.Add(await context.CallActivityAsync<string>("Function_Hello", "Tokyo"));
+            //outputs.Add(await context.CallActivityAsync<string>("Function_Hello", "Seattle"));
+            //outputs.Add(await context.CallActivityAsync<string>("Function_Hello", "London"));
 
             // returns ["Hello Tokyo!", "Hello Seattle!", "Hello London!"]
             return outputs;

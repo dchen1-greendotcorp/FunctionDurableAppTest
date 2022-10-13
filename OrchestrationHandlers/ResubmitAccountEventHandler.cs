@@ -23,22 +23,16 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
 
         public async Task<OrchestrationResponse> HandleAsync(IDurableOrchestrationContext context, OrchestrationParameters orchestration)
         {
-            var account=_accountDataService.GetAccountDetailsById(orchestration.AccountDetails.AccountId);
+            var account=await _accountDataService.GetAccountDetailsById(orchestration.AccountDetails.AccountId);
 
             try
             {
-                foreach (KeyValuePair<string, bool> k in account.ProcessStatus)
-                {
-                    if (!k.Value)
-                    {
-                        context.CallActivityWithRetryAsync<bool>(k.Key, retryOptions, account).GetAwaiter().GetResult();
-                    }
-                }
+                var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
 
                 OrchestrationResponse orchestrationResponse=new OrchestrationResponse()
                 {
                     CloseParent=true,
-                    AccountDetails=account,
+                    AccountDetails= notifiedAccount,
                 };
                 return orchestrationResponse;
             }

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using FunctionDurableAppTest.ActivityFunctions;
+using FunctionDurableAppTest.DataServices;
 using FunctionDurableAppTest.Models;
 using FunctionDurableAppTest.OrchestrationHandlers;
 using Microsoft.Azure.WebJobs;
@@ -20,12 +21,18 @@ namespace FunctionDurableAppTest.Orchestrators
     public class Orchestration
     {
         private readonly RetryOptions retryOptions;
-        private readonly Dictionary<string, IOrchestrationEventHandler> eventHandlerDict=new Dictionary<string, IOrchestrationEventHandler>();
+        private readonly AccountBusinessService _accountBusinessService;
+        private readonly IAccountDataService accountDataService;
+        private readonly Dictionary<string, IOrchestrationEventHandler> eventHandlerDict = new Dictionary<string, IOrchestrationEventHandler>();
 
-        public Orchestration(RetryOptions retryOptions, IEnumerable<IOrchestrationEventHandler> orchestrationEventHandlers)
+        public Orchestration(RetryOptions retryOptions, IEnumerable<IOrchestrationEventHandler> orchestrationEventHandlers,
+            AccountBusinessService accountBusinessService, IAccountDataService accountDataService)
         {
             this.retryOptions = retryOptions;
-            //eventHandlerDict=orchestrationEventHandlers.ToDictionary(c => c.EventName);
+            _accountBusinessService = accountBusinessService;
+            this.accountDataService = accountDataService;
+            eventHandlerDict = orchestrationEventHandlers.ToDictionary(c => c.EventName);
+
             //foreach (var item in orchestrationEventHandlers)
             //{
             //    eventHandlerDict[item.EventName] = item;
@@ -38,20 +45,39 @@ namespace FunctionDurableAppTest.Orchestrators
         {
             var account = context.GetInput<AccountDetails>();
 
-            account.ProcessInstanceId = context.InstanceId;
-
             try
             {
-                context.CallActivityWithRetryAsync<bool>(nameof(SaveAccount), retryOptions, account).GetAwaiter().GetResult();
-                context.CallActivityWithRetryAsync<bool>(nameof(ArchiveAccount), retryOptions, account).GetAwaiter().GetResult();
-                context.CallActivityWithRetryAsync<bool>(nameof(NotifyAccount), retryOptions, account).GetAwaiter().GetResult();
-                return;
+
+
+                account.ProcessInstanceId = context.InstanceId;
+
+                var existAcc = await accountDataService.GetAccountDetailsById(account.AccountId);
+                if (existAcc == null)
+                {
+                    await accountDataService.InsertAccountDetails(account);
+                }
+                await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
+                await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), account);
+                await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
+
+                //var returnAccount = await _accountBusinessService.AccountBusiness(context, account); 
+                //var savedAccount = await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
+                //if (savedAccount != null)
+                //{
+                //    var archivedAccount = await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), savedAccount);
+                //    if (archivedAccount != null)
+                //    {
+                //        var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), archivedAccount);
+                //        return;
+                //    }
+                //}
+
             }
             catch (Exception ex)
             {
                 log.LogError("Orchestra met error = {ex}", ex);
             }
-           
+
 
             Dictionary<string, Task<OrchestrationEventObj>> taskdict = new Dictionary<string, Task<OrchestrationEventObj>>();
 
@@ -69,6 +95,8 @@ namespace FunctionDurableAppTest.Orchestrators
                     var taskResult = await Task.WhenAny(taskList);
 
                     IOrchestrationEventHandler eventHandler = eventHandlerDict[taskResult.Result.EventName];
+
+                    //var myaccount=accountDataService.GetAccountDetailsById(account.AccountId);
 
                     OrchestrationParameters parameters = PrepareOrchestrationParameters(taskResult.Result, account);
 

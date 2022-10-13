@@ -12,10 +12,10 @@ namespace FunctionDurableAppTest.Models
         public string UserName { get; set; }
         //public string Status { get; set; }
 
+        public bool SaveAccount { get; set; }
+        public bool ArchiveAccount { get; set; }
+        public bool NotifyAccount { get; set; }
         public string ProcessInstanceId { get; set; }
-
-        public Dictionary<string,bool> ProcessStatus { get; set; }=new Dictionary<string,bool>();
-
 
         public static AccountDetails CreateAccountDetails(string username)
         {
@@ -23,11 +23,6 @@ namespace FunctionDurableAppTest.Models
 
             accountDetails.UserName = username;
             accountDetails.AccountId = Guid.NewGuid().ToString();
-
-            foreach(var c in AppConstants.AccountProcessList)
-            {
-                accountDetails.ProcessStatus[c] = false;
-            }
 
             return accountDetails;
         }

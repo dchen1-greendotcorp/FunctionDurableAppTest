@@ -17,21 +17,10 @@ namespace FunctionDurableAppTest.ActivityFunctions
         }
 
         [FunctionName("ArchiveAccount")]
-        public async Task<bool> ArchiveAccountActivity([ActivityTrigger] AccountDetails account, ILogger log)
+        public async Task ArchiveAccountActivity([ActivityTrigger] AccountDetails account, ILogger log)
         {
-            var acc=_accountDataService.GetAccountDetailsById(account.AccountId);
-            if(acc!=null && acc.ProcessStatus[AppConstants.ProcessArchive])
-            {
-                return true;
-            }
-
-            account.ProcessStatus[AppConstants.ProcessArchive] = true;
-
-            _accountDataService.SaveAccountDetails(account);
+            await _accountDataService.UpdateArchiveAccountStatus(account.AccountId, true);
             log.LogInformation($"Archive {account.UserName} success!");
-
-            await Task.Delay(100);
-            return true;
         }
     }
 }

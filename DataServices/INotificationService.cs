@@ -5,6 +5,6 @@ namespace FunctionDurableAppTest.DataServices
 {
     public interface   INotificationService
     {
-        Task<bool> NotifyAccount(AccountDetails account);
+        bool NotifyAccount(AccountDetails account);
     }
 }
