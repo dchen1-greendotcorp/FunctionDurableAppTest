@@ -33,7 +33,7 @@ trigger url [http://localhost:7225/api/CreateAccountRequest]
 
 ### 3. Orchestrator can try catch exceptions.
 
-### 4. Use context.WaitForExternalEvent to register events
+### 4. Use context.WaitForExternalEvent to register events in Orchestrator
 
 ### 5. Http trigger Send events with client.RaiseEventAsync 
 
