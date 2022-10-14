@@ -58,26 +58,12 @@ namespace FunctionDurableAppTest.Orchestrators
                         var notified = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
                     }
                 }
-                
-
-                //var returnAccount = await _accountBusinessService.AccountBusiness(context, account); 
-                //var savedAccount = await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
-                //if (savedAccount != null)
-                //{
-                //    var archivedAccount = await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), savedAccount);
-                //    if (archivedAccount != null)
-                //    {
-                //        var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), archivedAccount);
-                //        return;
-                //    }
-                //}
 
             }
             catch (Exception ex)
             {
                 log.LogError("Orchestra met error = {ex}", ex);
             }
-
 
             Dictionary<string, Task<OrchestrationEventObj>> taskdict = new Dictionary<string, Task<OrchestrationEventObj>>();
 
@@ -99,8 +85,6 @@ namespace FunctionDurableAppTest.Orchestrators
                     }
 
                     IOrchestrationEventHandler eventHandler = eventHandlerDict[taskResult.Result.EventName];
-
-                    //var myaccount=accountDataService.GetAccountDetailsById(account.AccountId);
 
                     OrchestrationParameters parameters = PrepareOrchestrationParameters(taskResult.Result, account);
 
