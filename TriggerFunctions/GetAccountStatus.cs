@@ -24,7 +24,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
         }
 
         [FunctionName("GetAccountStatus")]
-        public HttpResponseMessage HttpStart(
+        public async Task<HttpResponseMessage> HttpStart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient client,
             ILogger log)
@@ -41,7 +41,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
 
             var accountId = req.RequestUri.ParseQueryString().GetValues("id")[0];
 
-            var account=accountDataService.GetAccountDetailsById(accountId);
+            var account=await accountDataService.GetAccountDetailsById(accountId);
 
             if(account==null)
             {

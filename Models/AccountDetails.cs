@@ -10,12 +10,11 @@ namespace FunctionDurableAppTest.Models
     {
         public string AccountId { get; set; }
         public string UserName { get; set; }
-        //public string Status { get; set; }
+        public string ProcessInstanceId { get; set; }
 
         public bool SaveAccount { get; set; }
         public bool ArchiveAccount { get; set; }
         public bool NotifyAccount { get; set; }
-        public string ProcessInstanceId { get; set; }
 
         public static AccountDetails CreateAccountDetails(string username)
         {

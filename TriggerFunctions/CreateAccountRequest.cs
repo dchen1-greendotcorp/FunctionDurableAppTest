@@ -68,7 +68,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
 
                 if (res.RuntimeStatus == OrchestrationRuntimeStatus.Completed)
                 {
-                    var acc = accountDataService.GetAccountDetailsById(account.AccountId);
+                    var acc = await accountDataService.GetAccountDetailsById(account.AccountId);
                     var result = JsonConvert.SerializeObject(acc, Formatting.Indented,
                         new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
                     string format = string.Format("System find account with id: {AccountId}, get result: {result}", account.AccountId, result);

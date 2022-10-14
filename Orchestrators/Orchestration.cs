@@ -47,18 +47,18 @@ namespace FunctionDurableAppTest.Orchestrators
 
             try
             {
-
-
                 account.ProcessInstanceId = context.InstanceId;
-
-                var existAcc = await accountDataService.GetAccountDetailsById(account.AccountId);
-                if (existAcc == null)
+                
+                var saved=await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
+                if(saved!=null)
                 {
-                    await accountDataService.InsertAccountDetails(account);
+                    var archived = await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), saved);
+                    if(archived!=null)
+                    {
+                        var notified = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
+                    }
                 }
-                await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
-                await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), account);
-                await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
+                
 
                 //var returnAccount = await _accountBusinessService.AccountBusiness(context, account); 
                 //var savedAccount = await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
@@ -93,6 +93,10 @@ namespace FunctionDurableAppTest.Orchestrators
                     //wait for any registration event trigger
                     var taskList = taskdict.Values.Select(c => c).ToList();
                     var taskResult = await Task.WhenAny(taskList);
+                    if(taskResult.Result.EventName== AppConstants.ResubmitAccount_Event)
+                    {
+                        var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
+                    }
 
                     IOrchestrationEventHandler eventHandler = eventHandlerDict[taskResult.Result.EventName];
 
@@ -100,7 +104,7 @@ namespace FunctionDurableAppTest.Orchestrators
 
                     OrchestrationParameters parameters = PrepareOrchestrationParameters(taskResult.Result, account);
 
-                    var response = await eventHandler.HandleAsync(context, parameters);
+                    var response = await eventHandler.HandleAsync( parameters);
                     if (response.CloseParent)
                     {
                         cts.Cancel();

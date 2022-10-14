@@ -21,30 +21,19 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
         }
         public string EventName => AppConstants.ResubmitAccount_Event;
 
-        public async Task<OrchestrationResponse> HandleAsync(IDurableOrchestrationContext context, OrchestrationParameters orchestration)
+        public async Task<OrchestrationResponse> HandleAsync(OrchestrationParameters orchestration)
         {
-            var account=await _accountDataService.GetAccountDetailsById(orchestration.AccountDetails.AccountId);
+            var account = await _accountDataService.GetAccountDetailsById(orchestration.AccountDetails.AccountId);
 
-            try
-            {
-                var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
+            //
 
-                OrchestrationResponse orchestrationResponse=new OrchestrationResponse()
-                {
-                    CloseParent=true,
-                    AccountDetails= notifiedAccount,
-                };
-                return orchestrationResponse;
-            }
-            catch (Exception e)
+            OrchestrationResponse orchestrationResponse = new OrchestrationResponse()
             {
-                OrchestrationResponse orchestrationResponse = new OrchestrationResponse()
-                {
-                    CloseParent = false,
-                    AccountDetails = account,
-                };
-                return orchestrationResponse;
-            }
+                CloseParent = true,
+                AccountDetails = account,
+            };
+            return orchestrationResponse;
+
         }
     }
 }

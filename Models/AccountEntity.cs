@@ -30,11 +30,18 @@ namespace FunctionDurableAppTest.Models
             var ent = new AccountEntity();
             if(string.IsNullOrEmpty(accountDetails.AccountId))
             {
-                ent.AccountId = Guid.NewGuid().ToString();
+                accountDetails.AccountId = Guid.NewGuid().ToString();
             }
-            ent.RowKey = ent.AccountId;
+            ent.RowKey = accountDetails.AccountId;
             ent.PartitionKey = "myaccount";
 
+            ent.AccountId = accountDetails.AccountId;
+            ent.ProcessInstanceId= accountDetails.ProcessInstanceId;
+            ent.UserName= accountDetails.UserName;
+
+            ent.SaveAccount= accountDetails.SaveAccount;
+            ent.ArchiveAccount= accountDetails.ArchiveAccount;
+            ent.NotifyAccount  = accountDetails.NotifyAccount;
 
             return ent;
         }

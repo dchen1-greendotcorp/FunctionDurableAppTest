@@ -23,19 +23,35 @@ namespace FunctionDurableAppTest.DataServices
 
         public async Task<AccountDetails> GetAccountDetailsById(string id)
         {
-            var existAcc = await _tableClient.GetEntityAsync<AccountEntity>("myaccount", id);
+            try
+            {
+                var existAcc = await _tableClient.GetEntityAsync<AccountEntity>("myaccount", id);
+
+                return existAcc.Value;
+            }
+            catch (System.Exception)
+            {
+                return null;
+                //throw;
+            }
             
-            return existAcc.Value;
         }
 
         public async Task InsertAccountDetails(AccountDetails account)
         {
-            AccountEntity accountEntity= AccountEntity.CreateAccountEntity(account);
-            var existAcc=await _tableClient.GetEntityAsync<AccountEntity>(accountEntity.PartitionKey, accountEntity.RowKey);
-            if(existAcc==null)
+            try
             {
+                AccountEntity accountEntity = AccountEntity.CreateAccountEntity(account);
+
                 await _tableClient.AddEntityAsync<AccountEntity>(accountEntity);
+                
             }
+            catch (System.Exception e)
+            {
+
+                //throw;
+            }
+            
         }
 
         public async Task UpdateSaveAccountStatus(string accountId, bool status)

@@ -19,7 +19,7 @@ namespace FunctionDurableAppTest
         {
             services.AddScoped<IAccountDataService, TableDataService>();
 
-            services.AddSingleton<INotificationService, NotificationService>();
+            //services.AddSingleton<INotificationService, NotificationService>();
 
             services.AddScoped<IOrchestrationEventHandler, CancellAccountEventHandler>();
             services.AddScoped<IOrchestrationEventHandler, TaskExpireHandler>();
