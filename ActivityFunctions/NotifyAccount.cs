@@ -19,35 +19,25 @@ namespace FunctionDurableAppTest.ActivityFunctions
         }
 
         [FunctionName("NotifyAccount")]
-        public async Task<AccountDetails> NotifyAccountActivity([ActivityTrigger] IDurableActivityContext context,  ILogger log)
+        public async Task<AccountDetails> NotifyAccountActivity([ActivityTrigger] IDurableActivityContext context, ILogger log)
         {
+            string errmsg = string.Empty;
             AccountDetails account = context.GetInput<AccountDetails>();
-            var existacc=await _accountDataService.GetAccountDetailsById(account.AccountId);
+            var existacc = await _accountDataService.GetAccountDetailsById(account.AccountId);
 
-            if(!existacc.NotifyAccount)
+            if (!existacc.NotifyAccount)
             {
                 await _accountDataService.UpdateNotifyAccountStatus(account.AccountId, true);
-                log.LogError($"Notify {account.UserName} failed!");
-                throw new Exception($"Notify {account.UserName} failed!");
+                errmsg = $"Notify {account.UserName} failed!";
+                log.LogError(errmsg);
+                throw new Exception(errmsg);
             }
             else
             {
                 log.LogInformation($"Notify {account.UserName} success!");
                 return existacc;
             }
-            //var result =  _notificationService.NotifyAccount(account);
 
-            //if (result)
-            //{
-            //    _accountDataService.UpdateNotifyAccountStatus(account.AccountId, true);
-            //    log.LogInformation($"Notify {account.UserName} success!");
-            //}
-            //else
-            //{
-            //    log.LogError($"Notify {account.UserName} failed!");
-
-            //    throw new Exception($"Notify {account.UserName} failed!");
-            //}
         }
     }
 }

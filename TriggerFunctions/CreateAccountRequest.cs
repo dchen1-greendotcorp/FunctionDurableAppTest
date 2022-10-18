@@ -48,6 +48,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
 
             if (string.IsNullOrEmpty(account.ProcessInstanceId))
             {
+                
                 string instanceId = await client.StartNewAsync("Orchestration", account);
                 string info = $"Started orchestration with process ID = '{instanceId}', and accountId = '{account.AccountId}' .";
                 log.LogInformation(info);

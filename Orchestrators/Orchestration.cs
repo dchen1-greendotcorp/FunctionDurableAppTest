@@ -44,7 +44,8 @@ namespace FunctionDurableAppTest.Orchestrators
             [OrchestrationTrigger] IDurableOrchestrationContext context, ILogger log)
         {
             var account = context.GetInput<AccountDetails>();
-
+            AccountDetails notified = null;
+            Exception catchedEx= null;
             try
             {
                 account.ProcessInstanceId = context.InstanceId;
@@ -55,7 +56,7 @@ namespace FunctionDurableAppTest.Orchestrators
                     var archived = await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), saved);
                     if(archived!=null)
                     {
-                        var notified = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
+                        notified = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
                     }
                 }
 
@@ -63,6 +64,12 @@ namespace FunctionDurableAppTest.Orchestrators
             catch (Exception ex)
             {
                 log.LogError("Orchestra met error = {ex}", ex);
+                catchedEx = ex;
+            }
+            
+            if(catchedEx==null)
+            {
+                return;
             }
 
             Dictionary<string, Task<OrchestrationEventObj>> taskdict = new Dictionary<string, Task<OrchestrationEventObj>>();
@@ -81,7 +88,12 @@ namespace FunctionDurableAppTest.Orchestrators
                     var taskResult = await Task.WhenAny(taskList);
                     if(taskResult.Result.EventName== AppConstants.ResubmitAccount_Event)
                     {
-                        var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
+                        if(catchedEx is FunctionFailedException)
+                        {
+                            string activityName = FindFailedActivityName(catchedEx as FunctionFailedException);
+                            await context.CallActivityAsync(activityName, account);
+                        }
+                        //var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
                     }
 
                     IOrchestrationEventHandler eventHandler = eventHandlerDict[taskResult.Result.EventName];
@@ -96,6 +108,14 @@ namespace FunctionDurableAppTest.Orchestrators
                     }
                 }
             }
+        }
+
+        private string FindFailedActivityName(FunctionFailedException functionFailedException)
+        {
+            int start= functionFailedException.Message.IndexOf('\'',0);
+            int end= functionFailedException.Message.IndexOf('\'', start+1);
+            string activityName=functionFailedException.Message.Substring(start+1,end-start-1);
+            return activityName;
         }
 
         private OrchestrationParameters PrepareOrchestrationParameters(OrchestrationEventObj eventObj, AccountDetails account)
