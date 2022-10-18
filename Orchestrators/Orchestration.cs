@@ -44,7 +44,7 @@ namespace FunctionDurableAppTest.Orchestrators
             [OrchestrationTrigger] IDurableOrchestrationContext context, ILogger log)
         {
             var account = context.GetInput<AccountDetails>();
-            AccountDetails notified = null;
+            //AccountDetails notified = null;
             Exception catchedEx= null;
             try
             {
@@ -53,10 +53,16 @@ namespace FunctionDurableAppTest.Orchestrators
                 var saved=await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
                 if(saved!=null)
                 {
+                    account=saved;
                     var archived = await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), saved);
                     if(archived!=null)
                     {
-                        notified = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
+                        account = archived;
+                        var notified = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), archived);
+                        if(notified!=null)
+                        {
+                            account=notified;
+                        }
                     }
                 }
 
@@ -91,7 +97,8 @@ namespace FunctionDurableAppTest.Orchestrators
                         if(catchedEx is FunctionFailedException)
                         {
                             string activityName = FindFailedActivityName(catchedEx as FunctionFailedException);
-                            await context.CallActivityAsync(activityName, account);
+                            account.NotifyAccount = true;
+                            var result=await context.CallActivityAsync<AccountDetails>(activityName, account);
                         }
                         //var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
                     }
@@ -100,7 +107,7 @@ namespace FunctionDurableAppTest.Orchestrators
 
                     OrchestrationParameters parameters = PrepareOrchestrationParameters(taskResult.Result, account);
 
-                    var response = await eventHandler.HandleAsync( parameters);
+                    var response = eventHandler.Handle( parameters);
                     if (response.CloseParent)
                     {
                         cts.Cancel();

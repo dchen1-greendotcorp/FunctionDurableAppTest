@@ -9,7 +9,7 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
     {
         public string EventName => AppConstants.CancellAccount_Event;
 
-        public Task<OrchestrationResponse> HandleAsync( OrchestrationParameters orchestration)
+        public OrchestrationResponse Handle( OrchestrationParameters orchestration)
         {
             throw new NotImplementedException();
         }

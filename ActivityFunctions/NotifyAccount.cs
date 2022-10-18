@@ -23,11 +23,9 @@ namespace FunctionDurableAppTest.ActivityFunctions
         {
             string errmsg = string.Empty;
             AccountDetails account = context.GetInput<AccountDetails>();
-            var existacc = await _accountDataService.GetAccountDetailsById(account.AccountId);
 
-            if (!existacc.NotifyAccount)
+            if (!account.NotifyAccount)
             {
-                await _accountDataService.UpdateNotifyAccountStatus(account.AccountId, true);
                 errmsg = $"Notify {account.UserName} failed!";
                 log.LogError(errmsg);
                 throw new Exception(errmsg);
@@ -35,9 +33,24 @@ namespace FunctionDurableAppTest.ActivityFunctions
             else
             {
                 log.LogInformation($"Notify {account.UserName} success!");
-                return existacc;
+                return account;
             }
 
+            //var existacc = await _accountDataService.GetAccountDetailsById(account.AccountId);
+
+            //if (!existacc.NotifyAccount)
+            //{
+            //    await _accountDataService.UpdateNotifyAccountStatus(account.AccountId, true);
+            //    errmsg = $"Notify {account.UserName} failed!";
+            //    log.LogError(errmsg);
+            //    throw new Exception(errmsg);
+            //}
+            //else
+            //{
+            //    log.LogInformation($"Notify {account.UserName} success!");
+            //    return existacc;
         }
+
     }
 }
+

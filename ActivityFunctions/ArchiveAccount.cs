@@ -20,18 +20,21 @@ namespace FunctionDurableAppTest.ActivityFunctions
         public async Task<AccountDetails> ArchiveAccountActivity([ActivityTrigger] IDurableActivityContext context,  ILogger log)
         {
             AccountDetails account = context.GetInput<AccountDetails>();
-            var data = await _accountDataService.GetAccountDetailsById(account.AccountId);
-            if(data.ArchiveAccount)
-            {
-                return data;
-            }
-            else
-            {
-                await _accountDataService.UpdateArchiveAccountStatus(account.AccountId, true);
-                log.LogInformation($"Archive {account.UserName} success!");
-                data = await _accountDataService.GetAccountDetailsById(account.AccountId);
-                return data;
-            }
+            account.ArchiveAccount = true;
+            log.LogInformation($"Archive {account.UserName} success!");
+            return account;
+            //var data = await _accountDataService.GetAccountDetailsById(account.AccountId);
+            //if(data.ArchiveAccount)
+            //{
+            //    return data;
+            //}
+            //else
+            //{
+            //    await _accountDataService.UpdateArchiveAccountStatus(account.AccountId, true);
+            //    log.LogInformation($"Archive {account.UserName} success!");
+            //    data = await _accountDataService.GetAccountDetailsById(account.AccountId);
+            //    return data;
+            //}
         }
     }
 }

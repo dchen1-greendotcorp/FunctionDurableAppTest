@@ -24,26 +24,30 @@ namespace FunctionDurableAppTest.ActivityFunctions
         public async Task<AccountDetails> SaveAccountActivity([ActivityTrigger] IDurableActivityContext context,  ILogger log)
         {
             AccountDetails account= context.GetInput<AccountDetails>();
+            account.SaveAccount = true;
 
-            var data = await _accountDataService.GetAccountDetailsById(account.AccountId);
-            if(data == null)
-            {
-                account.SaveAccount = true;
+            log.LogInformation($"Save {account.UserName} success!");
+            return account;
 
-                await _accountDataService.InsertAccountDetails(account);
-                log.LogInformation($"Save {account.UserName} success!");
-                data = await _accountDataService.GetAccountDetailsById(account.AccountId);
-            }
-            else
-            {
-                if(!data.SaveAccount)
-                {
-                    data.SaveAccount = true;
-                    await _accountDataService.UpdateSaveAccountStatus(account.AccountId, true);
-                }
-            }
+            //var data = await _accountDataService.GetAccountDetailsById(account.AccountId);
+            //if(data == null)
+            //{
+            //    account.SaveAccount = true;
 
-            return data;
+            //    await _accountDataService.InsertAccountDetails(account);
+            //    log.LogInformation($"Save {account.UserName} success!");
+            //    data = await _accountDataService.GetAccountDetailsById(account.AccountId);
+            //}
+            //else
+            //{
+            //    if(!data.SaveAccount)
+            //    {
+            //        data.SaveAccount = true;
+            //        await _accountDataService.UpdateSaveAccountStatus(account.AccountId, true);
+            //    }
+            //}
+
+            //return data;
         }
     }
 }

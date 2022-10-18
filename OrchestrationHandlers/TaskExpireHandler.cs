@@ -8,7 +8,7 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
     {
         public string EventName => AppConstants.TaskExpireEvent;
 
-        public async Task<OrchestrationResponse> HandleAsync( OrchestrationParameters orchestration)
+        public OrchestrationResponse Handle( OrchestrationParameters orchestration)
         {
             OrchestrationResponse response = new OrchestrationResponse();
             response.CloseParent = true;

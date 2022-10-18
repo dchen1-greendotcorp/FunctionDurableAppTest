@@ -10,6 +10,6 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
     public interface IOrchestrationEventHandler
     {
         string EventName { get; }
-        Task<OrchestrationResponse> HandleAsync( OrchestrationParameters orchestration);
+        OrchestrationResponse Handle( OrchestrationParameters orchestration);
     }
 }

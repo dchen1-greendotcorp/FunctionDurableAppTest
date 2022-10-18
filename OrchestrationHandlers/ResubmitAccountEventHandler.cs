@@ -21,16 +21,12 @@ namespace FunctionDurableAppTest.OrchestrationHandlers
         }
         public string EventName => AppConstants.ResubmitAccount_Event;
 
-        public async Task<OrchestrationResponse> HandleAsync(OrchestrationParameters orchestration)
+        public OrchestrationResponse Handle(OrchestrationParameters orchestration)
         {
-            var account = await _accountDataService.GetAccountDetailsById(orchestration.AccountDetails.AccountId);
-
-            //
-
             OrchestrationResponse orchestrationResponse = new OrchestrationResponse()
             {
                 CloseParent = true,
-                AccountDetails = account,
+                AccountDetails = orchestration.AccountDetails,
             };
             return orchestrationResponse;
 
