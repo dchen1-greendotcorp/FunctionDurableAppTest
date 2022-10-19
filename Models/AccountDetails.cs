@@ -22,6 +22,7 @@ namespace FunctionDurableAppTest.Models
 
             accountDetails.UserName = username;
             accountDetails.AccountId = Guid.NewGuid().ToString();
+            accountDetails.ProcessInstanceId = accountDetails.AccountId;
 
             return accountDetails;
         }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using FunctionDurableAppTest.Models;
 using FunctionDurableAppTest.DataServices;
+using System;
 
 namespace FunctionDurableAppTest.ActivityFunctions
 {
@@ -20,9 +21,15 @@ namespace FunctionDurableAppTest.ActivityFunctions
         public async Task<AccountDetails> ArchiveAccountActivity([ActivityTrigger] IDurableActivityContext context,  ILogger log)
         {
             AccountDetails account = context.GetInput<AccountDetails>();
+
             account.ArchiveAccount = true;
+
             log.LogInformation($"Archive {account.UserName} success!");
             return account;
+
+            //account.ArchiveAccount = true;
+            //log.LogInformation($"Archive {account.UserName} success!");
+            //return account;
             //var data = await _accountDataService.GetAccountDetailsById(account.AccountId);
             //if(data.ArchiveAccount)
             //{

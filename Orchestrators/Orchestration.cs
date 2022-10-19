@@ -46,19 +46,22 @@ namespace FunctionDurableAppTest.Orchestrators
             var account = context.GetInput<AccountDetails>();
             //AccountDetails notified = null;
             Exception catchedEx= null;
+            AccountDetails saved = null;
+            AccountDetails archived = null;
+            AccountDetails notified = null;
             try
             {
                 account.ProcessInstanceId = context.InstanceId;
                 
-                var saved=await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
+                saved=await context.CallActivityAsync<AccountDetails>(nameof(SaveAccount), account);
                 if(saved!=null)
                 {
                     account=saved;
-                    var archived = await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), saved);
+                    archived = await context.CallActivityAsync<AccountDetails>(nameof(ArchiveAccount), saved);
                     if(archived!=null)
                     {
                         account = archived;
-                        var notified = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), archived);
+                        notified = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), archived);
                         if(notified!=null)
                         {
                             account=notified;
@@ -96,23 +99,28 @@ namespace FunctionDurableAppTest.Orchestrators
                     {
                         if(catchedEx is FunctionFailedException)
                         {
-                            string activityName = FindFailedActivityName(catchedEx as FunctionFailedException);
-                            account.NotifyAccount = true;
-                            var result=await context.CallActivityAsync<AccountDetails>(activityName, account);
+                           string activityName = FindFailedActivityName(catchedEx as FunctionFailedException);
+                           archived.NotifyAccount = true;
+                           notified = await context.CallActivityAsync<AccountDetails>(activityName, archived);
                         }
                         //var notifiedAccount = await context.CallActivityAsync<AccountDetails>(nameof(NotifyAccount), account);
                     }
 
-                    IOrchestrationEventHandler eventHandler = eventHandlerDict[taskResult.Result.EventName];
-
-                    OrchestrationParameters parameters = PrepareOrchestrationParameters(taskResult.Result, account);
-
-                    var response = eventHandler.Handle( parameters);
-                    if (response.CloseParent)
+                    if(notified!=null)
                     {
                         cts.Cancel();
                         break;
                     }
+                    //IOrchestrationEventHandler eventHandler = eventHandlerDict[taskResult.Result.EventName];
+
+                    //OrchestrationParameters parameters = PrepareOrchestrationParameters(taskResult.Result, account);
+
+                    //var response = eventHandler.Handle( parameters);
+                    //if (response.CloseParent)
+                    //{
+                    //    cts.Cancel();
+                    //    break;
+                    //}
                 }
             }
         }
