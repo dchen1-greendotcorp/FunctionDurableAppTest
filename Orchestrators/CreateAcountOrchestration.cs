@@ -21,10 +21,6 @@ namespace FunctionDurableAppTest.Orchestrators
     public class CreateAcountOrchestration
     {
         private readonly RetryOptions retryOptions;
-        private readonly AccountBusinessService _accountBusinessService;
-        private readonly IAccountDataService accountDataService;
-        private readonly Dictionary<string, IOrchestrationEventHandler> eventHandlerDict = new Dictionary<string, IOrchestrationEventHandler>();
-
         public CreateAcountOrchestration(RetryOptions retryOptions,  IAccountDataService accountDataService)
         {
             this.retryOptions = retryOptions;

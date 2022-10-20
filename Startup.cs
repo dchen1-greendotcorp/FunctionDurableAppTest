@@ -28,7 +28,7 @@ namespace FunctionDurableAppTest
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var config = builder.GetContext().Configuration;
-            builder.Services.AddDurableClientFactory();
+            //builder.Services.AddDurableClientFactory();
             builder.Services.RegistrationServices(config);
             
 

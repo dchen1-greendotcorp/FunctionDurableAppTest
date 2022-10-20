@@ -74,7 +74,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
                 case OrchestrationRuntimeStatus.ContinuedAsNew:
                 case OrchestrationRuntimeStatus.Unknown:
                 default:
-                    await client.SuspendAsync(requestModel.RequestId, "Timeout!");
+                    //await client.SuspendAsync(requestModel.RequestId, "Timeout!");
                     break;
             }
 
