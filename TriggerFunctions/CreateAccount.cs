@@ -61,7 +61,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
             if(status!=null && status.RuntimeStatus== OrchestrationRuntimeStatus.Completed)
             {
                 //return new OkObjectResult(status);
-                outPut["createAccountSuccess"]=true;
+                outPut["finishOrchestrationSuccess"] =true;
                return new OkObjectResult(outPut);
             }
 
@@ -73,12 +73,12 @@ namespace FunctionDurableAppTest.TriggerFunctions
             await client.WaitForCompletionOrCreateCheckStatusResponseAsync(req,
                 requestModel.RequestId,TimeSpan.FromSeconds(25),TimeSpan.FromSeconds(5));
 
-            status = await client.GetStatusAsync(requestModel.RequestId);
+            status = await client.GetStatusAsync(requestModel.RequestId, true, true, true);
             
             switch (status.RuntimeStatus)
             {
                 case OrchestrationRuntimeStatus.Completed:
-                    outPut["createAccountSuccess"] = true;
+                    outPut["finishOrchestrationSuccess"] = true;
                     
                     break;
                 case OrchestrationRuntimeStatus.Running:
@@ -86,11 +86,11 @@ namespace FunctionDurableAppTest.TriggerFunctions
                 case OrchestrationRuntimeStatus.ContinuedAsNew:
                 case OrchestrationRuntimeStatus.Unknown:
                 default:
-                    outPut["createAccountSuccess"] = false;
+                    outPut["finishOrchestrationSuccess"] = false;
                     break;
             }
 
-            outPut["runningStatus"] = JsonConvert.SerializeObject(status);
+            //outPut["runningStatus"] = JsonConvert.SerializeObject(status);
 
             OkObjectResult httpResponse =  new OkObjectResult(outPut);
             return httpResponse;

@@ -16,7 +16,7 @@ trigger data:
 2. third one (NotifyAccountActivity) throw exception Orchestration. 
 result:
 {
-	"createAccountSuccess": false,
+	"finishOrchestrationSuccess": false,
 	"runningStatus":""
 }
 
@@ -32,7 +32,7 @@ trigger url [http://localhost:7225/api/CreateAccount]
 2. third one (NotifyAccountActivity) running good this time. 
 result:
 {
-	"createAccountSuccess": good,
+	"finishOrchestrationSuccess": good,
 	"runningStatus":""
 }
 
@@ -42,6 +42,6 @@ result:
 
 ### 2. Add Microsoft.Azure.WebJobs.Extensions.DurableTask.Analyzers package in the project. When you build the project, it may give some warnings of contrains, thought you shoud not fully depend on it.
 
-
+### 3. Make all trigger functions return 200, with "finishOrchestrationSuccess", add additional data in the return if needed. Callers can check finishOrchestrationSuccess to decide retry call trigger functions. 
 
 
