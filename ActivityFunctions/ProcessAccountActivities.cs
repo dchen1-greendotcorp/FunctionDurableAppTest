@@ -31,6 +31,7 @@ namespace FunctionDurableAppTest.ActivityFunctions
                 return processed;
             }
 
+            //after this line, business part
             request.Request.SaveAccount = true;
 
             log.LogInformation($"Save {request.Request.UserName} success!");
@@ -47,6 +48,7 @@ namespace FunctionDurableAppTest.ActivityFunctions
                 return processed;
             }
 
+            //after this line, business part
             request.Request.ArchiveAccount = true;
 
             log.LogInformation($"Archive {request.Request.UserName} success!");
@@ -63,8 +65,10 @@ namespace FunctionDurableAppTest.ActivityFunctions
                 return processed;
             }
 
+            //after this line, business part, 
             if (!request.Request.NotifyAccount)
             {
+                //demo first time failed
                 var errmsg = $"Notify {request.Request.UserName} failed!";
                 request.Request.NotifyAccount = true;
 
@@ -73,6 +77,7 @@ namespace FunctionDurableAppTest.ActivityFunctions
             }
             else
             {
+                //demo first time success
                 log.LogInformation($"Notify {request.Request.UserName} success!");
                 return request;
             }

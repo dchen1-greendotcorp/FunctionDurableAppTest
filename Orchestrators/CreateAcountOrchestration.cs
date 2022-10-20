@@ -33,10 +33,13 @@ namespace FunctionDurableAppTest.Orchestrators
                     archived = await context.CallActivityAsync<RequestModel<AccountDetails>>(nameof(ProcessAccountActivities.ArchiveAccountActivity), saved);
                     if(archived!=null)
                     {
-                        if(requestModel.ProcessedHistory!=null)
+                        #region second try good prerequisite
+                        if (requestModel.ProcessedHistory!=null)
                         {
                             archived.Request.NotifyAccount = true;
                         }
+                        #endregion
+
                         notified = await context.CallActivityAsync<RequestModel<AccountDetails>>(nameof(ProcessAccountActivities.NotifyAccountActivity), archived);
                     }
                 }

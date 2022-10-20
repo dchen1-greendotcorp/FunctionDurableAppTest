@@ -4,26 +4,37 @@
 This is the Azure Durable Function test project (https://github.com/dchen1-greendotcorp/FunctionDurableAppTest).
 
 ## First http trigger with data
-trigger url [http://localhost:7225/api/CreateAccountRequest]
-trigger data: {
-  "userName": "davidchen"
+trigger url [http://localhost:7225/api/CreateAccount]
+trigger data: 
+{
+  "userName": "davidchen",
+  "accountId":"davidchen-create-request"
 }
 
 ##First trigger running result
-1. two activities (SaveAccount, ArchiveAccount) ok;
-2. third one (NotifyAccount) throw exception first time and be caught by Orchestration. Orchestration is still in running status.
+1. two activities (SaveAccountActivity, ArchiveAccount) ok;
+2. third one (NotifyAccountActivity) throw exception Orchestration. 
+result:
+{
+	"createAccountSuccess": false,
+	"runningStatus":""
+}
 
 ## Second http trigger with data
-trigger url [http://localhost:7225/api/CreateAccountRequest]
+trigger url [http://localhost:7225/api/CreateAccount]
 {
   "userName": "davidchen",
-  "processInstanceId":"98ea0614785c42a2ac5a757aef7d8966",
-  "accountId":"9da16122-041a-4c50-b47c-e9f6da5626a0"
+  "accountId":"davidchen-create-request"
 }
 
 ##Second trigger running result
-1. two activities (SaveAccount, ArchiveAccount) did not run since first round running good;
-2. third one (NotifyAccount) running good this time. 
+1. two activities (SaveAccountActivity, ArchiveAccount) business did not run since first round running good;
+2. third one (NotifyAccountActivity) running good this time. 
+result:
+{
+	"createAccountSuccess": good,
+	"runningStatus":""
+}
 
 ## Code practice
 
@@ -31,14 +42,6 @@ trigger url [http://localhost:7225/api/CreateAccountRequest]
 
 ### 2. Add Microsoft.Azure.WebJobs.Extensions.DurableTask.Analyzers package in the project. When you build the project, it may give some warnings of contrains, thought you shoud not fully depend on it.
 
-### 3. Orchestrator can try catch exceptions.
 
-### 4. Use context.WaitForExternalEvent to register events in Orchestrator
-
-### 5. Http trigger Send events with client.RaiseEventAsync 
-
-### 6. Using infinity while loop and cancellation token including timer to controll the Orchestrator running status
-
-### 7. Using client.GetStatusAsync(instanceId, true, true) to check Orchestrator status.
 
 

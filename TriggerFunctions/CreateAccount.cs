@@ -24,7 +24,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
     public class CreateAccount
     {
 
-        [OpenApiOperation(operationId: "CreateWorkflow")]
+        [OpenApiOperation(operationId: "CreateAccount")]
         [OpenApiRequestBody("application/json", typeof(AccountDetails))]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json",
             bodyType: typeof(JToken))]
@@ -74,7 +74,6 @@ namespace FunctionDurableAppTest.TriggerFunctions
                 requestModel.RequestId,TimeSpan.FromSeconds(25),TimeSpan.FromSeconds(5));
 
             status = await client.GetStatusAsync(requestModel.RequestId);
-
             
             switch (status.RuntimeStatus)
             {
