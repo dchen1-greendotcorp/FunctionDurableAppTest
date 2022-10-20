@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FunctionDurableAppTest.Models
 {
-    public class AccountDetails
+    public class AccountDetails:IRequest
     {
         public string AccountId { get; set; }
         public string UserName { get; set; }
@@ -15,6 +15,8 @@ namespace FunctionDurableAppTest.Models
         public bool SaveAccount { get; set; }
         public bool ArchiveAccount { get; set; }
         public bool NotifyAccount { get; set; }
+
+        public string UniqueRequestId => AccountId;
 
         public static AccountDetails CreateAccountDetails(string username)
         {

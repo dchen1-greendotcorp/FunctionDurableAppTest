@@ -1,6 +1,7 @@
 ﻿using FunctionDurableAppTest.DataServices;
 using FunctionDurableAppTest.OrchestrationHandlers;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,7 @@ namespace FunctionDurableAppTest
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var config = builder.GetContext().Configuration;
-
+            builder.Services.AddDurableClientFactory();
             builder.Services.RegistrationServices(config);
             
 

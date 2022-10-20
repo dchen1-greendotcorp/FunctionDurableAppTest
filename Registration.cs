@@ -28,6 +28,9 @@ namespace FunctionDurableAppTest
             services.AddScoped<AccountBusinessService>();
             services.AddSingleton<IRetryConfiguration, RetryConfiguration>();
 
+            services.AddSingleton(typeof(IActivityService<>), typeof(ActivityService<>));
+
+
             services.AddSingleton(sp =>
             {
                 IRetryConfiguration retryConfiguration = sp.GetRequiredService<IRetryConfiguration>();

@@ -25,5 +25,7 @@ namespace FunctionDurableAppTest
         public const string ProcessArchive = "ArchiveAccount";
         public const string ProcessNotification = "NotifyAccount";
         public static List<string> AccountProcessList = new List<string>() { ProcessSave, ProcessArchive, ProcessNotification };
+
+        public const string CreateAcountOrchestration = "CreateAcountOrchestration";
     }
 }
