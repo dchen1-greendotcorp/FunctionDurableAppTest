@@ -31,8 +31,4 @@ namespace FunctionDurableAppTest.DataServices
             return null;
         }
     }
-    public interface IActivityService<T> where T : IRequest
-    {
-        RequestModel<T> IsActivityComplemetedBefore(RequestModel<T> requestModel, string activityName) ;
-    }
 }
