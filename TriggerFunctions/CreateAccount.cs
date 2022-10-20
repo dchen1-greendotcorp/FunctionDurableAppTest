@@ -51,9 +51,12 @@ namespace FunctionDurableAppTest.TriggerFunctions
             }
 
             DurableOrchestrationStatus status = await client.GetStatusAsync(account.UniqueRequestId, true, true,true);
+            if(status!=null && status.RuntimeStatus== OrchestrationRuntimeStatus.Completed)
+            {
+                return new OkObjectResult(status);
+            }
 
             RequestModel<AccountDetails> requestModel = RequestModel<AccountDetails>.CreateRequest(account, status);
-
 
             await client.StartNewAsync(AppConstants.CreateAcountOrchestration, requestModel.RequestId, requestModel);
 

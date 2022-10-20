@@ -26,9 +26,9 @@ namespace FunctionDurableAppTest.ActivityFunctions
             RequestModel<AccountDetails> request = context.GetInput<RequestModel<AccountDetails>>();
 
             var processed = _activityService.IsActivityComplemetedBefore(request, nameof(SaveAccountActivity));
-            if (processed)
+            if (processed!=null)
             {
-                return request;
+                return processed;
             }
 
             request.Request.SaveAccount = true;
@@ -41,10 +41,10 @@ namespace FunctionDurableAppTest.ActivityFunctions
         public async Task<RequestModel<AccountDetails>> ArchiveAccountActivity([ActivityTrigger] IDurableActivityContext context, ILogger log)
         {
             RequestModel<AccountDetails> request = context.GetInput<RequestModel<AccountDetails>>();
-            var processed = _activityService.IsActivityComplemetedBefore(request, nameof(SaveAccountActivity));
-            if (processed)
+            var processed = _activityService.IsActivityComplemetedBefore(request, nameof(ArchiveAccountActivity));
+            if (processed != null)
             {
-                return request;
+                return processed;
             }
 
             request.Request.ArchiveAccount = true;
@@ -57,10 +57,10 @@ namespace FunctionDurableAppTest.ActivityFunctions
         public async Task<RequestModel<AccountDetails>> NotifyAccountActivity([ActivityTrigger] IDurableActivityContext context, ILogger log)
         {
             RequestModel<AccountDetails> request = context.GetInput<RequestModel<AccountDetails>>();
-            var processed = _activityService.IsActivityComplemetedBefore(request, nameof(SaveAccountActivity));
-            if (processed)
+            var processed = _activityService.IsActivityComplemetedBefore(request, nameof(NotifyAccountActivity));
+            if (processed != null)
             {
-                return request;
+                return processed;
             }
 
             if (!request.Request.NotifyAccount)

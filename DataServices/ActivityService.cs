@@ -10,7 +10,7 @@ namespace FunctionDurableAppTest.DataServices
 {
     public class ActivityService<T>: IActivityService<T> where T : IRequest
     {
-        public bool IsActivityComplemetedBefore(RequestModel<T> requestModel, string activityName) 
+        public RequestModel<T> IsActivityComplemetedBefore(RequestModel<T> requestModel, string activityName) 
         {
             if(requestModel!=null && requestModel.ProcessedHistory!=null)
             {
@@ -22,14 +22,17 @@ namespace FunctionDurableAppTest.DataServices
                 {
                     var completeEvent = result.First();
                     Newtonsoft.Json.Linq.JToken typedCompletedEvent = completeEvent["Result"];
-                    return true;
+
+                    var data=JsonConvert.DeserializeObject<RequestModel<T>>(typedCompletedEvent.ToString());
+                    data.ProcessedHistory = requestModel.ProcessedHistory;
+                    return data;
                 }
             }
-            return false;
+            return null;
         }
     }
     public interface IActivityService<T> where T : IRequest
     {
-        bool IsActivityComplemetedBefore(RequestModel<T> requestModel, string activityName) ;
+        RequestModel<T> IsActivityComplemetedBefore(RequestModel<T> requestModel, string activityName) ;
     }
 }
