@@ -15,7 +15,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
-
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 namespace FunctionDurableAppTest.Orchestrators
 {
     public class CreateAcountOrchestration

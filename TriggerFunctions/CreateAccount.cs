@@ -16,16 +16,22 @@ using Grpc.Core;
 using System;
 using Azure.Core;
 using Newtonsoft.Json.Linq;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using System.Net;
 
 namespace FunctionDurableAppTest.TriggerFunctions
 {
     public class CreateAccount
     {
-        
+
+        [OpenApiOperation(operationId: "CreateWorkflow")]
+        [OpenApiRequestBody("application/json", typeof(AccountDetails))]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json",
+            bodyType: typeof(JToken))]
 
         [FunctionName("CreateAccount")]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestMessage req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestMessage req,
             [DurableClient] IDurableOrchestrationClient client,
             ILogger log)
         {
@@ -49,11 +55,14 @@ namespace FunctionDurableAppTest.TriggerFunctions
                     account.ProcessInstanceId= accountDetails.AccountId;
                 }
             }
+            JToken outPut = JToken.Parse("{}");
 
             DurableOrchestrationStatus status = await client.GetStatusAsync(account.UniqueRequestId, true, true,true);
             if(status!=null && status.RuntimeStatus== OrchestrationRuntimeStatus.Completed)
             {
-                return new OkObjectResult(status);
+                //return new OkObjectResult(status);
+                outPut["createAccountSuccess"]=true;
+               return new OkObjectResult(outPut);
             }
 
             RequestModel<AccountDetails> requestModel = RequestModel<AccountDetails>.CreateRequest(account, status);
@@ -66,22 +75,25 @@ namespace FunctionDurableAppTest.TriggerFunctions
 
             status = await client.GetStatusAsync(requestModel.RequestId);
 
-            JToken outPut = null;
+            
             switch (status.RuntimeStatus)
             {
                 case OrchestrationRuntimeStatus.Completed:
-                    outPut = status.Output;
+                    outPut["createAccountSuccess"] = true;
+                    
                     break;
                 case OrchestrationRuntimeStatus.Running:
                 case OrchestrationRuntimeStatus.Pending:
                 case OrchestrationRuntimeStatus.ContinuedAsNew:
                 case OrchestrationRuntimeStatus.Unknown:
                 default:
-                    //await client.SuspendAsync(requestModel.RequestId, "Timeout!");
+                    outPut["createAccountSuccess"] = false;
                     break;
             }
 
-            var httpResponse = outPut != null ? new OkObjectResult(outPut) : new OkObjectResult(status);
+            outPut["runningStatus"] = JsonConvert.SerializeObject(status);
+
+            OkObjectResult httpResponse =  new OkObjectResult(outPut);
             return httpResponse;
         }
     }
