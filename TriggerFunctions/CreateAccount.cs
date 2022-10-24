@@ -64,6 +64,13 @@ namespace FunctionDurableAppTest.TriggerFunctions
                 outPut["finishOrchestrationSuccess"] =true;
                return new OkObjectResult(outPut);
             }
+            if (status != null && status.RuntimeStatus == OrchestrationRuntimeStatus.Running)
+            {
+                //return new OkObjectResult(status);
+                outPut["finishOrchestrationSuccess"] = false;
+                outPut["orchestrationStillRunning"]=true;
+                return new OkObjectResult(outPut);
+            }
 
             RequestModel<AccountDetails> requestModel = RequestModel<AccountDetails>.CreateRequest(account, status);
 
