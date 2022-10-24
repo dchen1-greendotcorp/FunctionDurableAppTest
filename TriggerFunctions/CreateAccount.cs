@@ -18,6 +18,7 @@ using Azure.Core;
 using Newtonsoft.Json.Linq;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using System.Net;
+using Microsoft.OpenApi.Models;
 
 namespace FunctionDurableAppTest.TriggerFunctions
 {
@@ -64,11 +65,17 @@ namespace FunctionDurableAppTest.TriggerFunctions
                 outPut["finishOrchestrationSuccess"] =true;
                return new OkObjectResult(outPut);
             }
+
+            string url = req.RequestUri.ToString();
+
+            var baseUrl = url.Substring(0, url.LastIndexOf("CreateAccount")-1);
+
             if (status != null && status.RuntimeStatus == OrchestrationRuntimeStatus.Running)
             {
                 //return new OkObjectResult(status);
                 outPut["finishOrchestrationSuccess"] = false;
                 outPut["orchestrationStillRunning"]=true;
+                outPut["checkStatusUrl"] = $"{baseUrl}/GetAccountProcessStatus/id/{account.UniqueRequestId}";
                 return new OkObjectResult(outPut);
             }
 
@@ -77,11 +84,13 @@ namespace FunctionDurableAppTest.TriggerFunctions
             await client.StartNewAsync(AppConstants.CreateAcountOrchestration, requestModel.RequestId, requestModel);
 
             log.LogInformation($"Started orchestration with ID = '{requestModel.RequestId}'.");
-            await client.WaitForCompletionOrCreateCheckStatusResponseAsync(req,
-                requestModel.RequestId,TimeSpan.FromSeconds(25),TimeSpan.FromSeconds(5));
+
+            //var reponse=await client.WaitForCompletionOrCreateCheckStatusResponseAsync(req,
+            //    requestModel.RequestId,TimeSpan.FromSeconds(25),TimeSpan.FromSeconds(5));
 
             status = await client.GetStatusAsync(requestModel.RequestId, true, true, true);
             
+
             switch (status.RuntimeStatus)
             {
                 case OrchestrationRuntimeStatus.Completed:
@@ -89,6 +98,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
                     break;
                 default:
                     outPut["finishOrchestrationSuccess"] = false;
+                    outPut["checkStatusUrl"] = $"{baseUrl}/GetAccountProcessStatus/id/{account.UniqueRequestId}";
                     break;
             }
 
@@ -96,6 +106,42 @@ namespace FunctionDurableAppTest.TriggerFunctions
 
             OkObjectResult httpResponse =  new OkObjectResult(outPut);
             return httpResponse;
+        }
+
+        [OpenApiOperation(operationId: "CreateAccount")]
+        [OpenApiParameter(name: "id", In = ParameterLocation.Query, Required = true, Type = typeof(string), Description = "The **processor id** parameter")]
+        //[OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "text/plain", bodyType: typeof(string), Description = "The OK response")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(JToken))]
+        [FunctionName("GetAccountProcessStatus")]
+        public async Task<IActionResult> GetAccountProcessStatus(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestMessage req,
+            [DurableClient] IDurableOrchestrationClient client,
+            ILogger log)
+        {
+            if (req.RequestUri.ParseQueryString().Count == 0 || !req.RequestUri.ParseQueryString().HasKeys())
+            {
+                throw new ArgumentException("Invalid data of request");
+            }
+            var id = req.RequestUri.ParseQueryString().GetValues("id");
+            if (string.IsNullOrWhiteSpace(id[0]))
+            {
+                throw new ArgumentException("Invalid data of request");
+            }
+
+            var instanceId = req.RequestUri.ParseQueryString().GetValues("id")[0];
+
+            var instantce = await client.GetStatusAsync(instanceId, true, true);
+            dynamic result = new Dictionary<string,object>();
+            result["instanceId"] = id;
+            result["status"] = instantce;
+
+            OkObjectResult httpResponse = new OkObjectResult(result);
+            return httpResponse;
+            //var result = JsonConvert.SerializeObject(instantce, Formatting.Indented,
+            //    new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            //log.LogInformation("Check account process instance with id: {instanceId},get result: {result}", instanceId, result);
+
+            //return req.CreateCustomResponse(System.Net.HttpStatusCode.OK, result);
         }
     }
 }
