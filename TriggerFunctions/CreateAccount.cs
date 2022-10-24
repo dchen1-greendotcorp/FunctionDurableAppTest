@@ -86,12 +86,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
             {
                 case OrchestrationRuntimeStatus.Completed:
                     outPut["finishOrchestrationSuccess"] = true;
-                    
                     break;
-                case OrchestrationRuntimeStatus.Running:
-                case OrchestrationRuntimeStatus.Pending:
-                case OrchestrationRuntimeStatus.ContinuedAsNew:
-                case OrchestrationRuntimeStatus.Unknown:
                 default:
                     outPut["finishOrchestrationSuccess"] = false;
                     break;
