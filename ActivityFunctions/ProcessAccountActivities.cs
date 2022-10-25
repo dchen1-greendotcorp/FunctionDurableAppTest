@@ -77,7 +77,7 @@ namespace FunctionDurableAppTest.ActivityFunctions
             }
             else
             {
-                //demo first time success
+                //demo second time success
                 log.LogInformation($"Notify {request.Request.UserName} success!");
                 return request;
             }

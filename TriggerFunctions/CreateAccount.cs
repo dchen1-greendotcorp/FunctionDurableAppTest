@@ -62,7 +62,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
             if(status!=null && status.RuntimeStatus== OrchestrationRuntimeStatus.Completed)
             {
                 //return new OkObjectResult(status);
-                outPut["finishOrchestrationSuccess"] =true;
+                outPut["finishOrchestrationSuccess"] = true;
                return new OkObjectResult(outPut);
             }
 
@@ -70,25 +70,19 @@ namespace FunctionDurableAppTest.TriggerFunctions
 
             var baseUrl = url.Substring(0, url.LastIndexOf("CreateAccount")-1);
 
-            if (status != null && status.RuntimeStatus == OrchestrationRuntimeStatus.Running)
+            if (status == null && status.RuntimeStatus != OrchestrationRuntimeStatus.Running)
             {
-                //return new OkObjectResult(status);
-                outPut["finishOrchestrationSuccess"] = false;
-                outPut["orchestrationStillRunning"]=true;
-                outPut["checkStatusUrl"] = $"{baseUrl}/GetAccountProcessStatus/id/{account.UniqueRequestId}";
-                return new OkObjectResult(outPut);
+                RequestModel<AccountDetails> requestModel = RequestModel<AccountDetails>.CreateRequest(account, status);
+
+                await client.StartNewAsync(AppConstants.CreateAcountOrchestration, requestModel.RequestId, requestModel);
+                log.LogInformation($"Started orchestration with ID = '{requestModel.RequestId}'.");
+
             }
 
-            RequestModel<AccountDetails> requestModel = RequestModel<AccountDetails>.CreateRequest(account, status);
+            await client.WaitForCompletionOrCreateCheckStatusResponseAsync(req,
+                account.UniqueRequestId, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(5));
 
-            await client.StartNewAsync(AppConstants.CreateAcountOrchestration, requestModel.RequestId, requestModel);
-
-            log.LogInformation($"Started orchestration with ID = '{requestModel.RequestId}'.");
-
-            //var reponse=await client.WaitForCompletionOrCreateCheckStatusResponseAsync(req,
-            //    requestModel.RequestId,TimeSpan.FromSeconds(25),TimeSpan.FromSeconds(5));
-
-            status = await client.GetStatusAsync(requestModel.RequestId, true, true, true);
+            status = await client.GetStatusAsync(account.UniqueRequestId, true, true, true);
             
 
             switch (status.RuntimeStatus)
@@ -103,7 +97,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
             }
 
             //outPut["runningStatus"] = JsonConvert.SerializeObject(status);
-
+            //outPut["data"]=
             OkObjectResult httpResponse =  new OkObjectResult(outPut);
             return httpResponse;
         }
