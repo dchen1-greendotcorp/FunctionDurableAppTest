@@ -70,7 +70,7 @@ namespace FunctionDurableAppTest.TriggerFunctions
 
             var baseUrl = url.Substring(0, url.LastIndexOf("CreateAccount")-1);
 
-            if (status == null && status.RuntimeStatus != OrchestrationRuntimeStatus.Running)
+            if (status == null || status.RuntimeStatus != OrchestrationRuntimeStatus.Running)
             {
                 RequestModel<AccountDetails> requestModel = RequestModel<AccountDetails>.CreateRequest(account, status);
 
